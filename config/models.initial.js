@@ -10,7 +10,7 @@ async function initDatabase () {
 
     Product.hasMany(productSize , {foreignKey: "productId" , sourceKey: "id" , as : "sizes"});
     productSize.belongsTo(Product, {foreignKey: "productId" , targetKey: "id"});
-    await sequelize.sync({force : true}) 
+    // await sequelize.sync({force : true}) 
 
 }
 module.exports = initDatabase

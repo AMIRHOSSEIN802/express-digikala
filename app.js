@@ -4,6 +4,7 @@ const sequelize = require('./config/sequelize.config');
 const initDatabase = require('./config/models.initial');
 const { productRouter } = require('./modules/product/product.routes');
 const morgan = require('morgan');
+const { authRoutes } = require('./modules/auth/auth.routes');
 config();
 async function main() {
     const app = express();
@@ -11,6 +12,7 @@ async function main() {
     app.use(express.json());
     app.use(express.urlencoded({ extended: true }));
     await initDatabase()
+    app.use("/auth" , authRoutes)
     app.use("/product" , productRouter)
     app.use((req , res , next) => {
         return res.status(404).json({

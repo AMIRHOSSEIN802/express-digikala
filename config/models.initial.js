@@ -1,4 +1,5 @@
 const { Product, productDetail, productColor, productSize } = require("../modules/product/product.model");
+const { RefreshToken } = require("../modules/user/refreshToken");
 const { User, Otp } = require("../modules/user/user.model");
 const sequelize = require("./sequelize.config");
 
@@ -15,7 +16,7 @@ async function initDatabase () {
     User.hasOne(Otp, {foreignKey: "userId", as: "otp", sourceKey: "id"});
     Otp.hasOne(User, {foreignKey: "otpId", as: "otp" , sourceKey: "id"});
     Otp.belongsTo(User, {foreignKey: "userId", targetKey: "id"});
-
+    RefreshToken.sync()
     // await sequelize.sync({alter : true}) 
 
 }

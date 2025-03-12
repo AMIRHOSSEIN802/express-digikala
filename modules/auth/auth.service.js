@@ -2,6 +2,7 @@ const { config } = require("dotenv");
 const { User, Otp } = require("../user/user.model");
 const createHttpError = require("http-errors");
 const jwt = require("jsonwebtoken");
+const { RefreshToken } = require("../user/refreshToken");
 config();
 async function sendOtpHandler (req , res , next) {
     try {
@@ -70,14 +71,24 @@ function generateToken(payload) {
 
 async function verifyRefreshToken(req , res , next) {
     try {
-        const {refreshToken} = req.body;
+        const {refreshToken: token} = req.body;
         // console.log(refreshToken);
         
-        if(!refreshToken) throw createHttpError(401, "login on your account");
-        const verified = jwt.verify(refreshToken , process.env.REFRESH_TOKEN_SECRET);
+        if(!token) throw createHttpError(401, "login on your account");
+        const verified = jwt.verify(token , process.env.REFRESH_TOKEN_SECRET);
         if (verified?.userId) {
             const user = await User.findByPk(verified?.userId);
             if (!user) throw createHttpError(401 , "login on your account");
+            const existToken = await RefreshToken.findOne({
+                where: {
+                    token
+                }
+            });
+            if (existToken) throw createHttpError(401 , "token expired");
+            await RefreshToken.create({
+                token,
+                userId: user.id
+            })
             const {accessToken , refreshToken} = generateToken({userId: user.id});
             return res.json({
                 accessToken,
@@ -86,7 +97,7 @@ async function verifyRefreshToken(req , res , next) {
         }
         
     } catch (error) {
-        next(createHttpError(401, "login on your account"));
+        next(error);
     }
 }
 

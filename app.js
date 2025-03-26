@@ -5,6 +5,7 @@ const initDatabase = require('./config/models.initial');
 const { productRouter } = require('./modules/product/product.routes');
 const morgan = require('morgan');
 const { authRoutes } = require('./modules/auth/auth.routes');
+const { basketRouter } = require('./modules/basket/basket.routes');
 config();
 async function main() {
     const app = express();
@@ -14,6 +15,7 @@ async function main() {
     await initDatabase()
     app.use("/auth" , authRoutes)
     app.use("/product" , productRouter)
+    app.use("/basket" , basketRouter)
     app.use((req , res , next) => {
         return res.status(404).json({
             message : "not fund route"
